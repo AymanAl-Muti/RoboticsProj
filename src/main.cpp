@@ -86,7 +86,7 @@ void opcontrol() {
 	pros::Motor right_mtr_bck(4);
 	pros::Motor claw_mtr(6);
 
-	pros::ADIPotentiometer peto(1);
+
 
 
 
@@ -96,7 +96,7 @@ void opcontrol() {
 		                 (pros::lcd::read_buttons() & LCD_BTN_CENTER) >> 1,
 		                 (pros::lcd::read_buttons() & LCD_BTN_RIGHT) >> 0);
 
-		int left = master.get_analog(ANALOG_LEFT_Y);
+		int right_fwd = master.get_analog(ANALOG_LEFT_Y);
 		int right = master.get_analog(ANALOG_RIGHT_X);
 		int right2 = master.get_analog(ANALOG_RIGHT_X)*-1;
 
@@ -111,10 +111,7 @@ void opcontrol() {
 			claw_mtr.move(-40);
 		}
 
-		else if(peto.get_value() > 10)
-		{
-			claw_mtr.move(0);
-		}
+
 
 
 		//while(peto.get_value() >= startPosition)
@@ -122,20 +119,14 @@ void opcontrol() {
 			//claw_mtr.move(0);
 		//}
 
-		left_mtr_frnt = left;
-		left_mtr_bck = left;
+		left_mtr_frnt = right_fwd && right;
+		left_mtr_bck = right_fwd && right;
     left_mtr_bck.set_reversed(true);
 		left_mtr_frnt.set_reversed(true);
 
-		right_mtr_frnt = left;
-		right_mtr_bck = left;
-    while(right != 1)
-		{
-			right_mtr_bck = right;
-	 		right_mtr_frnt = right;
-	 		left_mtr_bck = right;
-	 		left_mtr_frnt = right;
+		right_mtr_frnt = right_fwd && right2;
+		right_mtr_bck = right_fwd && right2;
+
  		}
 	pros::delay(10);
-	}
 }
