@@ -96,7 +96,7 @@ void opcontrol() {
 		                 (pros::lcd::read_buttons() & LCD_BTN_CENTER) >> 1,
 		                 (pros::lcd::read_buttons() & LCD_BTN_RIGHT) >> 0);
 
-		int right_fwd = master.get_analog(ANALOG_LEFT_Y);
+		int fwd = master.get_analog(ANALOG_LEFT_Y);
 		int right = master.get_analog(ANALOG_RIGHT_X);
 		int right2 = master.get_analog(ANALOG_RIGHT_X)*-1;
 
@@ -106,11 +106,6 @@ void opcontrol() {
 			claw_mtr.move(40);
 		}
 
-		else if (master.get_digital(DIGITAL_A) == 1)
-		{
-			claw_mtr.move(-40);
-		}
-
 
 
 
@@ -118,15 +113,25 @@ void opcontrol() {
 		//{
 			//claw_mtr.move(0);
 		//}
-
-		left_mtr_frnt = right_fwd && right;
-		left_mtr_bck = right_fwd && right;
-    left_mtr_bck.set_reversed(true);
-		left_mtr_frnt.set_reversed(true);
-
-		right_mtr_frnt = right_fwd && right2;
-		right_mtr_bck = right_fwd && right2;
-
+		/*int fwd = master.get_analog(ANALOG_LEFT_Y);
+			int right = master.get_analog(ANALOG_RIGHT_X);
+			int right2 = master.get_analog(ANALOG_RIGHT_X)*-1;*/
+		left_mtr_frnt = fwd;
+		left_mtr_bck = fwd;
+		right_mtr_frnt = fwd;
+		right_mtr_bck = fwd;
+		if (right >= 1){
+			left_mtr_bck = right;
+			left_mtr_frnt = right;
+			right_mtr_frnt = right2;
+			right_mtr_bck = right2;
+		}
+		if (right2 >= 1){
+			left_mtr_bck = right;
+			left_mtr_frnt = right;
+			right_mtr_frnt = right2;
+			right_mtr_bck = right2;
+		}
  		}
 	pros::delay(10);
 }
