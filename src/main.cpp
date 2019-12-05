@@ -16,9 +16,12 @@ void initialize() {
 	pros::lcd::set_text(1, "Hello PROS User!");
 
 	pros::lcd::register_btn1_cb(on_center_button);
+
+	pros::Motor lft_mtr_frnt(1,pros::E_MOTOR_GEARSET_18,false,pros::E_MOTOR_ENCODER_COUNTS);
 }
 int gyro(){
 	pros::ADIAnalogIn sensor (1);
+	return sensor.get_value();
 	while (true){
 		cout << "distance" << sensor.get_value();
 	}
@@ -32,28 +35,7 @@ void competition_initialize() {
 
 }
 
-/*using namespace okapi;
 
-const int LFT_FRNT = 1;
-const int LFT_BCK = 2;
-const int RIGHT_FRNT = 3;
-const int RIGHT_BCK = 4;
-
-const double liftkP = 0.001;
-const double liftkI = 0.0001;
-const double liftkD = 0.0001;
-const int LIFT_MTR1 = 7;
-const int LIFT_MTR2 = 8;
-
-const auto WHEEL_DIAMETER = 4_in;
-const auto CHASSIS_WIDTH = 12.5_in;
-auto lift = AsyncControllerFactory:: posPID(LIFT_MTR1, LIFT_MTR2,liftkP, liftkI,
-liftkD);
-auto drive = ChassisControllerFactory::create(
-  LFT_FRNT, LFT_BCK, RIGHT_FRNT, RIGHT_BCK,
-  AbstractMotor::gearset::green,
-  {WHEEL_DIAMETER, CHASSIS_WIDTH}
-);*/
 pros::Controller master(pros::E_CONTROLLER_MASTER);
 pros::Motor left_mtr_frnt(1);
 pros::Motor left_mtr_bck(2);
@@ -78,8 +60,20 @@ void straight(float distance, int speed){
 		pros::delay(10);
 	}
 }
-void turn(int degrees){
-
+//positive degrees = right
+//speed = velocity
+void turn(int degrees, int speed){
+	left_mtr_frnt.move_velocity(speed);
+	left_mtr_bck.move_velocity(speed);
+	right_mtr_frnt.move_velocity( speed);
+	right_mtr_bck.move_velocity(speed);
+	while (gyro() >= degrees){
+		pros::delay(10);
+	}
+	left_mtr_frnt.move_velocity(0);
+	left_mtr_bck.move_velocity(0);
+	right_mtr_frnt.move_velocity(0);
+	right_mtr_bck.move_velocity(0);
 }
 
 void autonomous() {
@@ -101,7 +95,7 @@ void opcontrol() {
 
 
 
-
+	int fwd;
 
 
 	while (true) {
@@ -110,9 +104,8 @@ void opcontrol() {
 		                 (pros::lcd::read_buttons() & LCD_BTN_RIGHT) >> 0);
 		int liftu = master.get_digital(DIGITAL_L1);
 		int liftd = master.get_digital(DIGITAL_L2);
-		int fwd = master.get_analog(ANALOG_LEFT_Y);
+		fwd = master.get_analog(ANALOG_LEFT_Y);
 		int right = master.get_analog(ANALOG_RIGHT_X);
-		int right2 = master.get_analog(ANALOG_RIGHT_X)*-1;
 		int x = lift1.get_voltage();
 		if (x == lift1.get_voltage()){
 			lift2 = lift1.get_voltage()*-1;
@@ -120,12 +113,11 @@ void opcontrol() {
 
 		if (master.get_digital(DIGITAL_R1) == 1)
 		{
-			claw_mtr.move(36);
+			claw_mtr.move_absolute(200, 50);
 		}
 if (liftu == 1) {
 	lift1 = 100;
 	lift2 = -100;
-
 }
 
 
@@ -133,21 +125,17 @@ if (liftd == 1){
 	lift2 = 100;
 	lift1 = -100;
 }
-		left_mtr_bck = fwd;
-		right_mtr_frnt = fwd;
-		right_mtr_bck = fwd;
-		if (right >= 1){
+		left_mtr_bck = fwd+right;
+		left_mtr_frnt = fwd+right;
+		right_mtr_frnt = fwd-right;
+		right_mtr_bck = fwd-right;
+		/*if (std::abs(right) >= 30){
 			left_mtr_bck = right;
 			left_mtr_frnt = right;
 			right_mtr_frnt = right2;
 			right_mtr_bck = right2;
-		}
-		if (right2 >= 1){
-			left_mtr_bck = right;
-			left_mtr_frnt = right;
-			right_mtr_frnt = right2;
-			right_mtr_bck = right2;
-		}
+		}*/
+
+		pros::delay(10);
  		}
-	pros::delay(10);
 }
