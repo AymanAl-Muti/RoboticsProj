@@ -65,7 +65,7 @@ void straight(float distance, int speed){
 void turn(int degrees, int speed){
 	left_mtr_frnt.move_velocity(speed);
 	left_mtr_bck.move_velocity(speed);
-	right_mtr_frnt.move_velocity( speed);
+	right_mtr_frnt.move_velocity(speed);
 	right_mtr_bck.move_velocity(speed);
 	while (gyro() >= degrees){
 		pros::delay(10);
@@ -76,55 +76,72 @@ void turn(int degrees, int speed){
 	right_mtr_bck.move_velocity(0);
 }
 
+void claw()
+{
+	claw_mtr.move(50);
+}
+
 void autonomous() {
-	lift1.move(100);
-	lift2.move(-100);
+	lift1.move_velocity(100);
+	lift2.move_velocity(-100);
 	straight(84, 100);
-	lift1.move(-100);
-	lift2.move(100);
-	straight(-89, 100);
+	claw();
+	straight(-84, 100);
 
 
 }
 
 void opcontrol() {
-	const int startPosition = 10;
-
-	#define Peto_Port 1
-
-
-
-
 	int fwd;
-
+	int liftu;
+	int liftd;
+	int right;
+	int x;
 
 	while (true) {
 		pros::lcd::print(0, "%d %d %d", (pros::lcd::read_buttons() & LCD_BTN_LEFT) >> 2,
 		                 (pros::lcd::read_buttons() & LCD_BTN_CENTER) >> 1,
 		                 (pros::lcd::read_buttons() & LCD_BTN_RIGHT) >> 0);
-		int liftu = master.get_digital(DIGITAL_L1);
-		int liftd = master.get_digital(DIGITAL_L2);
+		liftu = master.get_digital(DIGITAL_L1);
+		liftd = master.get_digital(DIGITAL_L2);
 		fwd = master.get_analog(ANALOG_LEFT_Y);
-		int right = master.get_analog(ANALOG_RIGHT_X);
-		int x = lift1.get_voltage();
+		right = master.get_analog(ANALOG_RIGHT_X);
+		x = lift1.get_voltage();
 		if (x == lift1.get_voltage()){
 			lift2 = lift1.get_voltage()*-1;
 		}
 
 		if (master.get_digital(DIGITAL_R1) == 1)
 		{
-			claw_mtr.move_absolute(200, 50);
+			claw_mtr.move(50);
+		} 
+
+		else 
+		{
+			claw_mtr.move(0);
 		}
-if (liftu == 1) {
-	lift1 = 100;
-	lift2 = -100;
-}
 
 
-if (liftd == 1){
-	lift2 = 100;
-	lift1 = -100;
-}
+		if (liftu == 1)
+		{
+
+			lift2.move_velocity(-100);
+			lift1.move_velocity(100);
+
+		}
+
+		if (liftd == 1)
+		{
+			lift1.move_velocity(100);;
+			lift2.move_velocity(-100);
+		}
+
+		if (liftu == 0 && liftu == 0)
+		{
+			lift1.move_velocity(0);
+			lift2.move_velocity(0);
+		}
+
 		left_mtr_bck = fwd+right;
 		left_mtr_frnt = fwd+right;
 		right_mtr_frnt = fwd-right;
