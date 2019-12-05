@@ -1,12 +1,7 @@
 #include "main.h"
 #include "okapi/api.hpp"
 using namespace std;
-/**
- * A callback function for LLEMU's center button.
- *
- * When this callback is fired, it will toggle line 2 of the LCD text between
- * "I was pressed!" and nothing.
- */
+
 void on_center_button() {
 	static bool pressed = false;
 	pressed = !pressed;
@@ -16,75 +11,93 @@ void on_center_button() {
 		pros::lcd::clear_line(2);
 	}
 }
-
-/**
- * Runs initialization code. This occurs as soon as the program is started.
- *
- * All other competition modes are blocked by initialize; it is recommended
- * to keep execution time for this mode under a few seconds.
- */
 void initialize() {
 	pros::lcd::initialize();
 	pros::lcd::set_text(1, "Hello PROS User!");
 
 	pros::lcd::register_btn1_cb(on_center_button);
 }
+int gyro(){
+	pros::ADIAnalogIn sensor (1);
+	while (true){
+		cout << "distance" << sensor.get_value();
+	}
+}
 
-/**
- * Runs while the robot is in the disabled state of Field Management System or
- * the VEX Competition Switch, following either autonomous or opcontrol. When
- * the robot is enabled, this task will exit.
- */
+
+
 void disabled() {}
 
-/**
- * Runs after initialize(), and before autonomous when connected to the Field
- * Management System or the VEX Competition Switch. This is intended for
- * competition-specific initialization routines, such as an autonomous selector
- * on the LCD.
- *
- * This task will exit when the robot is enabled and autonomous or opcontrol
- * starts.
- */
-void competition_initialize() {}
+void competition_initialize() {
 
-/**
- * Runs the user autonomous code. This function will be started in its own task
- * with the default priority and stack size whenever the robot is enabled via
- * the Field Management System or the VEX Competition Switch in the autonomous
- * mode. Alternatively, this function may be called in initialize or opcontrol
- * for non-competition testing purposes.
- *
- * If the robot is disabled or communications is lost, the autonomous task
- * will be stopped. Re-enabling the robot will restart the task, not re-start it
- * from where it left off.
- */
-void autonomous() {}
+}
 
-/**
- * Runs the operator control code. This function will be started in its own task
- * with the default priority and stack size whenever the robot is enabled via
- * the Field Management System or the VEX Competition Switch in the operator
- * control mode.
- *
- * If no competition control is connected, this function will run immediately
- * following initialize().
- *
- * If the robot is disabled or communications is lost, the
- * operator control task will be stopped. Re-enabling the robot will restart the
- * task, not resume it from where it left off.
- */
+/*using namespace okapi;
+
+const int LFT_FRNT = 1;
+const int LFT_BCK = 2;
+const int RIGHT_FRNT = 3;
+const int RIGHT_BCK = 4;
+
+const double liftkP = 0.001;
+const double liftkI = 0.0001;
+const double liftkD = 0.0001;
+const int LIFT_MTR1 = 7;
+const int LIFT_MTR2 = 8;
+
+const auto WHEEL_DIAMETER = 4_in;
+const auto CHASSIS_WIDTH = 12.5_in;
+auto lift = AsyncControllerFactory:: posPID(LIFT_MTR1, LIFT_MTR2,liftkP, liftkI,
+liftkD);
+auto drive = ChassisControllerFactory::create(
+  LFT_FRNT, LFT_BCK, RIGHT_FRNT, RIGHT_BCK,
+  AbstractMotor::gearset::green,
+  {WHEEL_DIAMETER, CHASSIS_WIDTH}
+);*/
+pros::Controller master(pros::E_CONTROLLER_MASTER);
+pros::Motor left_mtr_frnt(1);
+pros::Motor left_mtr_bck(2);
+pros::Motor right_mtr_frnt(3);
+pros::Motor right_mtr_bck(4);
+pros::Motor claw_mtr(6);
+pros::Motor lift1(7);
+pros::Motor lift2(8);
+int distanceCalc(float numb){
+	return (numb/12.6)*900;
+}
+
+//distance inch
+//speed velocity
+void straight(float distance, int speed){
+	int tick_distance = distanceCalc(distance);
+	left_mtr_frnt.move_absolute(tick_distance, speed);
+	left_mtr_bck.move_absolute(tick_distance, speed);
+	right_mtr_frnt.move_absolute(tick_distance, speed);
+	right_mtr_bck.move_absolute(tick_distance, speed);
+	while (left_mtr_bck.get_position() < tick_distance && right_mtr_bck.get_position() < tick_distance){
+		pros::delay(10);
+	}
+}
+void turn(int degrees){
+
+}
+
+void autonomous() {
+	lift1.move(100);
+	lift2.move(-100);
+	straight(84, 100);
+	lift1.move(-100);
+	lift2.move(100);
+	straight(-89, 100);
+
+
+}
+
 void opcontrol() {
 	const int startPosition = 10;
 
 	#define Peto_Port 1
 
-	pros::Controller master(pros::E_CONTROLLER_MASTER);
-	pros::Motor left_mtr_frnt(1);
-	pros::Motor left_mtr_bck(2);
-	pros::Motor right_mtr_frnt(3);
-	pros::Motor right_mtr_bck(4);
-	pros::Motor claw_mtr(6);
 
 
 
@@ -95,28 +108,31 @@ void opcontrol() {
 		pros::lcd::print(0, "%d %d %d", (pros::lcd::read_buttons() & LCD_BTN_LEFT) >> 2,
 		                 (pros::lcd::read_buttons() & LCD_BTN_CENTER) >> 1,
 		                 (pros::lcd::read_buttons() & LCD_BTN_RIGHT) >> 0);
-
+		int liftu = master.get_digital(DIGITAL_L1);
+		int liftd = master.get_digital(DIGITAL_L2);
 		int fwd = master.get_analog(ANALOG_LEFT_Y);
 		int right = master.get_analog(ANALOG_RIGHT_X);
 		int right2 = master.get_analog(ANALOG_RIGHT_X)*-1;
-
-
-		if (master.get_digital(DIGITAL_B) == 1)
-		{
-			claw_mtr.move(40);
+		int x = lift1.get_voltage();
+		if (x == lift1.get_voltage()){
+			lift2 = lift1.get_voltage()*-1;
 		}
 
+		if (master.get_digital(DIGITAL_R1) == 1)
+		{
+			claw_mtr.move(36);
+		}
+if (liftu == 1) {
+	lift1 = 100;
+	lift2 = -100;
+
+}
 
 
-
-		//while(peto.get_value() >= startPosition)
-		//{
-			//claw_mtr.move(0);
-		//}
-		/*int fwd = master.get_analog(ANALOG_LEFT_Y);
-			int right = master.get_analog(ANALOG_RIGHT_X);
-			int right2 = master.get_analog(ANALOG_RIGHT_X)*-1;*/
-		left_mtr_frnt = fwd;
+if (liftd == 1){
+	lift2 = 100;
+	lift1 = -100;
+}
 		left_mtr_bck = fwd;
 		right_mtr_frnt = fwd;
 		right_mtr_bck = fwd;
