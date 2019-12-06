@@ -13,7 +13,7 @@ void on_center_button() {
 }
 void initialize() {
 	pros::lcd::initialize();
-	pros::lcd::set_text(1, "Hello PROS User!");
+	pros::lcd::set_text(1, "/kill @e [type = competetors]");
 
 	pros::lcd::register_btn1_cb(on_center_button);
 
@@ -104,8 +104,8 @@ void opcontrol() {
 
 		liftu = master.get_digital(DIGITAL_L1);
 		liftd = master.get_digital(DIGITAL_L2);
-		fwd = master.get_analog(ANALOG_RIGHT_X);
-		right = master.get_analog(ANALOG_LEFT_Y);
+		fwd = master.get_analog(ANALOG_LEFT_Y);
+		right = master.get_analog(ANALOG_RIGHT_X);
 		x = lift1.get_voltage();
 
 		if (x == lift1.get_voltage()){
