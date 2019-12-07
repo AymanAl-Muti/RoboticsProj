@@ -56,8 +56,8 @@ void straight(float distance, int speed){
 	int tick_distance = distanceCalc(distance);
 	left_mtr_frnt.move_velocity(tick_distance);
 	left_mtr_bck.move_velocity(tick_distance);
-	right_mtr_frnt.move_velocity(tick_distance);
-	right_mtr_bck.move_velocity(tick_distance);
+	right_mtr_frnt.move_velocity(-tick_distance);
+	right_mtr_bck.move_velocity(-tick_distance);
 	while (left_mtr_bck.get_position() < tick_distance && right_mtr_bck.get_position() < tick_distance){
 		pros::delay(10);
 	}
@@ -123,7 +123,7 @@ void opcontrol() {
 
 		else
 		{
-			claw_mtr.move(-10);
+			claw_mtr.move_velocity(0);
 		}
 
 		if (liftu == 1)
@@ -136,13 +136,14 @@ void opcontrol() {
 
 		if (liftd == 1)
 		{
-			lift1.move_velocity(-25);;
+			lift1.move_velocity(-25);
 			lift2.move_velocity(25);
 		}
 
 		if (liftu == 0 && liftd == 0)
 		{
-
+			lift1.move(0);
+			lift2.move(0);
 		}
 
 
