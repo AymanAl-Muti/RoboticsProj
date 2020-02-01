@@ -86,35 +86,48 @@ void clawclose()
 }
 
 void autonomous() {
-	//
-	//
-	//
-	//
-	//
-	straight(12, 100);
+	//blue Big
 	clawopen();
-	clawclose();
+	straight(12, 100);
 	turn(180,100);
 	straight(12, 100);
 	turn(90,100);
 	straight(4,100);
 	clawopen();
 	straight(-24,100);
+	//red big
+	/*
+	clawopen();
+	straight(12, 100);
+	turn(180,100);
+	straight(12, 100);
+	turn(270,100);
+	straight(4,100);
+	clawopen();
+	straight(-24,100);
+	*/
+  //either smol
+	/*
+	straight(60, 100);
+		pros::delay(10);
+		straight(-12, 100);
+		*/
 }
 
 void opcontrol() {
 	int fwd;
-	int liftu;
-	int liftd;
 	int right;
 	int x;
+
+	pros::Motor lift1(1);
+	pros::Motor lift2(2);
+
 
 	while (true) {
 		pros::lcd::print(0, "%d %d %d", (pros::lcd::read_buttons() & LCD_BTN_LEFT) >> 2,
 		                 (pros::lcd::read_buttons() & LCD_BTN_CENTER) >> 1,
 		                 (pros::lcd::read_buttons() & LCD_BTN_RIGHT) >> 0);
-		liftu = master.get_digital(DIGITAL_L1);
-		liftd = master.get_digital(DIGITAL_L2);
+
 		fwd = master.get_analog(ANALOG_LEFT_Y);
 		right = master.get_analog(ANALOG_RIGHT_X);
 		x = lift1.get_voltage();
@@ -122,35 +135,10 @@ void opcontrol() {
 			lift2 = lift1.get_voltage()*-1;
 		}
 
-		if (master.get_digital(DIGITAL_R1) == 1)
+		if(master.get_digital(DIGITAL_L1))
 		{
-			claw_mtr.move(50);
-		}
-
-		else
-		{
-			claw_mtr.move(0);
-		}
-
-
-		if (liftu == 1)
-		{
-
-			lift2.move_velocity(100);
 			lift1.move_velocity(100);
-
-		}
-
-		if (liftd == 1)
-		{
-			lift1.move_velocity(100);;
 			lift2.move_velocity(100);
-		}
-
-		if (liftu == 0 && liftu == 0)
-		{
-			lift1.move_velocity(0);
-			lift2.move_velocity(0);
 		}
 
 		left_mtr_bck = fwd+right;
