@@ -88,14 +88,36 @@ void autonomous() {
 	//
 	//
 	//
-	straight(12, 100);
+	//blue claw
+/*	straight(11.5, 100);
 	clawopen();
+	straight(0.5, 100);
 	turn(180,100);
 	straight(12, 100);
 	turn(90,100);
-	straight(4,100);
+	straight(3.5,100);
 	clawopen();
+	straight(1, 100);
 	straight(-24,100);
+	*/
+	//red claw
+	/* straight(11.5, 100);
+	clawopen();
+	straight(0.5, 100);
+	turn(180,100);
+	straight(12, 100);
+	turn(270,100);
+	straight(3.5,100);
+	clawopen();
+	straight(1, 100);
+	straight(-24,100);
+*/
+// no claw	
+	/*
+	straight(72, 100);
+	pros::delay(100);
+	straight(-72, 100);
+	*/
 }
 
 void opcontrol() {
