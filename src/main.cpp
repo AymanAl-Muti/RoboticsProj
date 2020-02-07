@@ -41,9 +41,6 @@ pros::Motor left_mtr_frnt(20);
 pros::Motor left_mtr_bck(10);
 pros::Motor right_mtr_frnt(11);
 pros::Motor right_mtr_bck(1);
-pros::Motor claw_mtr(6);
-pros::Motor lift1(19);
-pros::Motor lift2(2);
 int distanceCalc(float numb){
 	return (numb/12.6)*900;
 }
@@ -76,43 +73,10 @@ void turn(int degrees, int speed){
 	right_mtr_bck.move_velocity(0);
 }
 
-void clawopen()
-{
-	claw_mtr.move(50);
-}
 
 
 void autonomous() {
-	//
-	//
-	//
-	//
-	//
-	//blue claw
-/*	straight(11.5, 100);
-	clawopen();
-	straight(0.5, 100);
-	turn(180,100);
-	straight(12, 100);
-	turn(90,100);
-	straight(3.5,100);
-	clawopen();
-	straight(1, 100);
-	straight(-24,100);
-	*/
-	//red claw
-	/* straight(11.5, 100);
-	clawopen();
-	straight(0.5, 100);
-	turn(180,100);
-	straight(12, 100);
-	turn(270,100);
-	straight(3.5,100);
-	clawopen();
-	straight(1, 100);
-	straight(-24,100);
-*/
-// no claw	
+// no claw
 	/*
 	straight(72, 100);
 	pros::delay(100);
@@ -131,46 +95,9 @@ void opcontrol() {
 		pros::lcd::print(0, "%d %d %d", (pros::lcd::read_buttons() & LCD_BTN_LEFT) >> 2,
 		                 (pros::lcd::read_buttons() & LCD_BTN_CENTER) >> 1,
 		                 (pros::lcd::read_buttons() & LCD_BTN_RIGHT) >> 0);
-		liftu = master.get_digital(DIGITAL_L1);
-		liftd = master.get_digital(DIGITAL_L2);
 		fwd = master.get_analog(ANALOG_LEFT_Y);
 		right = master.get_analog(ANALOG_RIGHT_X);
 		x = lift1.get_voltage();
-		if (x == lift1.get_voltage()){
-			lift2 = lift1.get_voltage()*-1;
-		}
-
-		if (master.get_digital(DIGITAL_R1) == 1)
-		{
-			claw_mtr.move(50);
-		}
-
-		else
-		{
-			claw_mtr.move(0);
-		}
-
-
-		if (liftu == 1)
-		{
-
-			lift2.move_velocity(100);
-			lift1.move_velocity(100);
-
-		}
-
-		if (liftd == 1)
-		{
-			lift1.move_velocity(100);;
-			lift2.move_velocity(100);
-		}
-
-		if (liftu == 0 && liftu == 0)
-		{
-			lift1.move_velocity(0);
-			lift2.move_velocity(0);
-		}
-
 		left_mtr_bck = fwd+right;
 		left_mtr_frnt = fwd+right;
 		right_mtr_frnt = fwd-right;
