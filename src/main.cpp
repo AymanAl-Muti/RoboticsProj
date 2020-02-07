@@ -41,6 +41,9 @@ pros::Motor left_mtr_frnt(20);
 pros::Motor left_mtr_bck(10);
 pros::Motor right_mtr_frnt(11);
 pros::Motor right_mtr_bck(1);
+pros::Motor intake1(1);
+pros::Motor intake2(2);
+pros::Motor angleAdujster(20);
 int distanceCalc(float numb){
 	return (numb/12.6)*900;
 }
@@ -91,13 +94,14 @@ void opcontrol() {
 	int right;
 	int x;
 
+
 	while (true) {
 		pros::lcd::print(0, "%d %d %d", (pros::lcd::read_buttons() & LCD_BTN_LEFT) >> 2,
 		                 (pros::lcd::read_buttons() & LCD_BTN_CENTER) >> 1,
 		                 (pros::lcd::read_buttons() & LCD_BTN_RIGHT) >> 0);
+
 		fwd = master.get_analog(ANALOG_LEFT_Y);
 		right = master.get_analog(ANALOG_RIGHT_X);
-		x = lift1.get_voltage();
 		left_mtr_bck = fwd+right;
 		left_mtr_frnt = fwd+right;
 		right_mtr_frnt = fwd-right;
@@ -108,6 +112,28 @@ void opcontrol() {
 			right_mtr_frnt = right2;
 			right_mtr_bck = right2;
 		}*/
+
+		if(master.get_digital(DIGITAL_R1) == 1)
+		{
+			intake1.move_velocity(100);
+			intake2.move_velocity(100);
+		}
+
+		if(master.get_digital(DIGITAL_L1) == 1)
+		{
+			angleAdujster.move_velocity(20);
+		}
+
+		else if(master.get_digital(DIGITAL_L2) == 1)
+		{
+			angleAdujster.move_velocity(-20);
+		}
+
+		else
+		{
+			angleAdujster.set_brake_mode(MOTOR_BRAKE_HOLD);
+		}
+
 
 		pros::delay(10);
  		}
